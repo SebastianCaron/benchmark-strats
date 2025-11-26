@@ -23,6 +23,10 @@ class Hanoi:
         return self
 
     def can_play(self, start : int, end : int):
+        if(len(self.piles[start]) == 0):
+            return False
+        if(len(self.piles[end]) == 0):
+            return True
         return (self.piles[start][-1] < self.piles[end][-1])
     
     def successors(self) -> dict[tuple[int, int], "Hanoi"]:
@@ -45,11 +49,17 @@ class Hanoi:
         return str(self.piles)
     
     def __hash__(self):
-        return self.__str__()
+        return hash(self.__str__())
 
     def __eq__(self, value):
         if isinstance(value, Hanoi) and self.piles == value.piles:
             return True
+        return False
+
+    def __gt__(self, other):
+        return False
+
+    def __lt__(self, other):
         return False
 
 
@@ -95,8 +105,8 @@ def dfs_hanoi(hanoi: Hanoi):
     return False, explored
 
 def dijkstra_hanoi(start : Hanoi):
-    dist = defaultdict(lambda x: float('inf'))
-    parents = defaultdict(lambda x: None)
+    dist = defaultdict(lambda : float('inf'))
+    parents = defaultdict(lambda : None)
 
     dist[start] = 0
 
