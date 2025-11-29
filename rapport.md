@@ -38,3 +38,5 @@ Conformément aux modalités laissant le choix des technologies libre, nous avon
     - **Mémoire (RAM) :** 16 Go.
 
 - **Code source :** Les sources des programmes utilisés ainsi que les jeux de données sont fournis en annexe.
+
+
