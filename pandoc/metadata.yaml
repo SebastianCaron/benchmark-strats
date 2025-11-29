@@ -13,8 +13,8 @@ geometry:
 - left=25mm
 - right=25mm
 fontsize: 11pt
-mainfont: "DejaVu Serif"
-monofont: "DejaVu Sans Mono"
+# mainfont: "DejaVu Serif"
+# monofont: "DejaVu Sans Mono"
 colorlinks: true
 toc: true
 toc-title: "Sommaire"
