@@ -25,4 +25,9 @@ header-includes:
   \fancyhead[L]{Université d'Artois}
   \fancyhead[R]{2IA}
   \fancyfoot[C]{\thepage}
+- |
+  \usepackage{float}
+  \let\origfigure\figure
+  \let\endorigfigure\endfigure
+  \renewenvironment{figure}[1][2] {\origfigure[H]} {\endorigfigure}
 ---
