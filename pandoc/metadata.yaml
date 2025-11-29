@@ -1,0 +1,28 @@
+---
+title: "2IA : Benchmarking et analyse comparative de méthodes de recherche"
+subtitle: "Master 1 Informatique - Introduction à l'IA"
+author:
+- "Sebastian CARON"
+- "Lina LETHOOR"
+date: "\\today"
+lang: fr-FR
+documentclass: report
+geometry:
+- top=25mm
+- bottom=25mm
+- left=25mm
+- right=25mm
+fontsize: 11pt
+mainfont: "DejaVu Serif"
+monofont: "DejaVu Sans Mono"
+colorlinks: true
+toc: true
+toc-title: "Sommaire"
+header-includes:
+- |
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhead[L]{Université d'Artois}
+  \fancyhead[R]{2IA}
+  \fancyfoot[C]{\thepage}
+---
