@@ -244,11 +244,11 @@ def ida_star(grid: Grid):
     start = grid.initial()
 
     bound = grid.heuristic(start)
-    path = [start]
     explored = [0]
     max_depth = len(grid.graph)
 
     while True:
+        path = [start]
         found, result = search_idastar(grid, path, 0, bound, explored)
 
         if found:
