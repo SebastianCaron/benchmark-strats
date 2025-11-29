@@ -19,24 +19,25 @@ for metric in metrics:
     plot_metric_for_all_algos(results, algos, metric, f'./figures/{metric}_graph.png')
 
 results = benchmark_hanoi(
-    sizes=[2, 3, 5, 7],
-    repeats=100
+    sizes=[2, 3,4, 5, 6, 7, 8],
+    repeats=50
 )
 
 export_to_csv_hanoi(results)
 metrics = ["time", "memory", "explored"]
-algos = ['BFS', 'DFS', 'Dijkstra']
+algos = ['BFS', 'DFS', 'Dijkstra', 'A*', 'IDA*']
+algos = ['BFS', 'DFS', 'Dijkstra', 'A*']
 for metric in metrics:
     plot_metric_hanoi(results, algos, metric, f'./figures/{metric}_hanoi.png')
 
-results = benchmark_grid(
-    sizes=[40, 80, 160, 320],
-    nb_walls=[0,5, 8],
-    wall_sizes=[(0,2),(1,5),(5,5)],
-    repeats=10,
-)
+# results = benchmark_grid(
+#     sizes=[40, 80, 160, 320],
+#     nb_walls=[0,5, 8],
+#     wall_sizes=[(0,2),(1,5),(5,5)],
+#     repeats=10,
+# )
 
-algos.extend(["A*", "IDA*"])
-export_to_csv_grid(results)
-for metric in metrics:
-    plot_metric_grid(results, algos, metric, f'./figures/{metric}_grid.png')
+# algos.extend(["A*", "IDA*"])
+# export_to_csv_grid(results)
+# for metric in metrics:
+#     plot_metric_grid(results, algos, metric, f'./figures/{metric}_grid.png')

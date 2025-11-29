@@ -62,6 +62,13 @@ class Hanoi:
     def __lt__(self, other):
         return False
 
+    def heuristic(self) -> float:
+        """Heuristique admissible : nombre de disques qui ne sont pas sur la pile finale (pile 2)."""
+        final_pile = 2
+        total_disks = sum(len(pile) for pile in self.piles)
+        disks_on_final = len(self.piles[final_pile])
+        return total_disks - disks_on_final
+
 
 def bfs_hanoi(hanoi : Hanoi):
     start = hanoi
@@ -132,3 +139,94 @@ def dijkstra_hanoi(start : Hanoi):
                 heapq.heappush(heap, (new_cost, neighbor))
 
     return False, float('inf'), explored
+
+def astar_hanoi(hanoi: Hanoi):
+    start = hanoi
+
+    pq = [(start.heuristic(), 0, start)]
+    dist = defaultdict(lambda: float('inf'))
+    dist[start] = 0
+    visited = set()
+
+    explored = 0
+
+    while pq:
+        f_score, g_score, node = heapq.heappop(pq)
+        
+        if node in visited:
+            continue
+            
+        visited.add(node)
+        explored += 1
+
+        if node.is_final():
+            return True, g_score, explored
+
+        for neighbor in node.successors().values():
+            if neighbor in visited:
+                continue
+                
+            new_cost = g_score + 1
+
+            if new_cost < dist[neighbor]:
+                dist[neighbor] = new_cost
+                f_cost = new_cost + neighbor.heuristic()
+                heapq.heappush(pq, (f_cost, new_cost, neighbor))
+
+    return False, float('inf'), explored
+
+
+def search_idastar_hanoi(hanoi: Hanoi, path, g, bound, explored):
+    node = path[-1]
+    explored[0] += 1
+
+    f = g + node.heuristic()
+
+    if f > bound:
+        return False, f
+
+    if node.is_final():
+        return True, g
+
+    min_bound = float('inf')
+
+    for neighbor in node.successors().values():
+        if neighbor in path:
+            continue
+        
+        path.append(neighbor)
+        found, result = search_idastar_hanoi(hanoi, path, g + 1, bound, explored)
+
+        if found:
+            return True, result
+
+        if result < min_bound:
+            min_bound = result
+
+        path.pop()
+
+    return False, min_bound
+
+
+def ida_star_hanoi(hanoi: Hanoi):
+    start = hanoi
+
+    bound = start.heuristic()
+    explored = [0]
+    # Estimation de la profondeur maximale : nombre de disques * 2 (borne supérieure)
+    max_depth = hanoi.size * 2
+
+    while True:
+        path = [start]
+        found, result = search_idastar_hanoi(hanoi, path, 0, bound, explored)
+
+        if found:
+            return True, result, explored[0]
+
+        if result == float('inf'):
+            return False, float('inf'), explored[0]
+
+        bound = result
+    
+        if bound > max_depth * 2:
+            return False, float('inf'), explored[0]

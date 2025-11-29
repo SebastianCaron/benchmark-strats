@@ -26,6 +26,12 @@ def dfs_explored(*args, **kwargs):
 def dijkstra_explored(*args, **kwargs):
     return dijkstra_hanoi(*args, **kwargs)[2]
 
+def astar_explored(*args, **kwargs):
+    return astar_hanoi(*args, **kwargs)[2]
+
+def idastar_explored(*args, **kwargs):
+    return ida_star_hanoi(*args, **kwargs)[2]
+
 
 def benchmark_hanoi(
     sizes=[2,3,5,10],
@@ -36,10 +42,11 @@ def benchmark_hanoi(
     for size in sizes:
         alg_results = {
             key : {"time": [], "memory": [], "explored": []} 
-            for key in ["BFS", "DFS", "Dijkstra"]
+            # for key in ["BFS", "DFS", "Dijkstra", "A*", "IDA*"]
+            for key in ["BFS", "DFS", "Dijkstra", "A*"]
         }
 
-        for _ in range(repeats):
+        for i in range(repeats):
             h = Hanoi(size)
 
             t, m, e = measure(bfs_explored, h)
@@ -57,8 +64,23 @@ def benchmark_hanoi(
             alg_results["Dijkstra"]["memory"].append(m)
             alg_results["Dijkstra"]["explored"].append(e)
             
+            t, m, e = measure(astar_explored, h)
+            alg_results["A*"]["time"].append(t)
+            alg_results["A*"]["memory"].append(m)
+            alg_results["A*"]["explored"].append(e)
+            
+            # if (size < 5):
+            #     t, m, e = measure(idastar_explored, h)
+            #     alg_results["IDA*"]["time"].append(t)
+            #     alg_results["IDA*"]["memory"].append(m)
+            #     alg_results["IDA*"]["explored"].append(e)
+            # else:
+            #     alg_results["IDA*"]["time"].append(0)
+            #     alg_results["IDA*"]["memory"].append(0)
+            #     alg_results["IDA*"]["explored"].append(0)
             
             # print((size))
+            print(f"[{i}/{repeats}] {size}")
         results.append((size, alg_results))
 
     return results
