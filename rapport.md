@@ -216,7 +216,7 @@ Le problème des Tours de Hanoï consiste à déplacer une pile de $n$ disques. 
 
 Les graphiques ci-dessous montrent l'évolution des métriques.
 
-*Note : IDA* (avec bonne heuristique) n'est plus représenté pour $N \ge 6$ car il dépasse le temps limite (Timeout). IDA* avec mauvaise heuristique explose dès $N=5$.*
+*Note : IDA\* (avec bonne heuristique) n'est plus représenté pour $N \ge 6$ car il dépasse le temps limite (Timeout). IDA\* avec mauvaise heuristique explose dès $N=5$.*
 
 ![Temps d'exécution pour Hanoï](./figures/time_hanoik.png){ width=80% }
 
