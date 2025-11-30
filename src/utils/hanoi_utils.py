@@ -12,6 +12,8 @@ def plot_metric_for_all_algos(results : list, algos: list, metric : str, filenam
         for size, algos_data in results:
             if algo in algos_data and metric in algos_data[algo]:
                 values = algos_data[algo][metric]
+                if not values:
+                    continue
                 sizes.append(size)
                 means.append(statistics.mean(values))
 
@@ -36,6 +38,8 @@ def export_to_csv(results, filename="benchmark_hanoi.csv"):
         for size, algos in results:
             for algo_name, metrics in algos.items():
                 for metric_name, values in metrics.items():
+                    if(not values):
+                        continue
                     mean_val = statistics.mean(values)
                     std_val = statistics.stdev(values) if len(values) > 1 else 0.0
                     writer.writerow([

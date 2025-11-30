@@ -20,13 +20,14 @@ for metric in metrics:
 
 results = benchmark_hanoi(
     sizes=[2, 3,4, 5, 6, 7, 8],
-    repeats=50
+    repeats=20
 )
 
 export_to_csv_hanoi(results)
 metrics = ["time", "memory", "explored"]
-algos = ['BFS', 'DFS', 'Dijkstra', 'A*', 'IDA*']
-algos = ['BFS', 'DFS', 'Dijkstra', 'A*']
+algos = ['BFS', 'DFS', 'Dijkstra', 'A*', 'IDA*', 'IDA* (bad h())']
+# algos = ['BFS', 'DFS', 'Dijkstra', 'A*', 'IDA*']
+# algos = ['BFS', 'DFS', 'Dijkstra', 'A*']
 for metric in metrics:
     plot_metric_hanoi(results, algos, metric, f'./figures/{metric}_hanoi.png')
 

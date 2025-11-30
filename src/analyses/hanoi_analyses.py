@@ -29,8 +29,11 @@ def dijkstra_explored(*args, **kwargs):
 def astar_explored(*args, **kwargs):
     return astar_hanoi(*args, **kwargs)[2]
 
-def idastar_explored(*args, **kwargs):
-    return ida_star_hanoi(*args, **kwargs)[2]
+def idastar_explored(hanoi, heuristic=None):
+    if heuristic is None:
+        return ida_star_hanoi(hanoi)[2]
+    else:
+        return ida_star_hanoi(hanoi, heuristic=heuristic)[2]
 
 
 def benchmark_hanoi(
@@ -42,8 +45,7 @@ def benchmark_hanoi(
     for size in sizes:
         alg_results = {
             key : {"time": [], "memory": [], "explored": []} 
-            # for key in ["BFS", "DFS", "Dijkstra", "A*", "IDA*"]
-            for key in ["BFS", "DFS", "Dijkstra", "A*"]
+            for key in ["BFS", "DFS", "Dijkstra", "A*", "IDA*", "IDA* (bad h())"]
         }
 
         for i in range(repeats):
@@ -69,15 +71,16 @@ def benchmark_hanoi(
             alg_results["A*"]["memory"].append(m)
             alg_results["A*"]["explored"].append(e)
             
-            # if (size < 5):
-            #     t, m, e = measure(idastar_explored, h)
-            #     alg_results["IDA*"]["time"].append(t)
-            #     alg_results["IDA*"]["memory"].append(m)
-            #     alg_results["IDA*"]["explored"].append(e)
-            # else:
-            #     alg_results["IDA*"]["time"].append(0)
-            #     alg_results["IDA*"]["memory"].append(0)
-            #     alg_results["IDA*"]["explored"].append(0)
+            if (size < 6):
+                t, m, e = measure(idastar_explored, h, heuristic=lambda x: x.bad_heuristic())
+                alg_results["IDA* (bad h())"]["time"].append(t)
+                alg_results["IDA* (bad h())"]["memory"].append(m)
+                alg_results["IDA* (bad h())"]["explored"].append(e)
+            
+                t, m, e = measure(idastar_explored, h, heuristic=lambda x: x.heuristic())
+                alg_results["IDA*"]["time"].append(t)
+                alg_results["IDA*"]["memory"].append(m)
+                alg_results["IDA*"]["explored"].append(e)
             
             # print((size))
             print(f"[{i}/{repeats}] {size}")
