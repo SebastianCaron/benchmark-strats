@@ -39,16 +39,11 @@ class Hanoi:
         return res
     
     def is_final(self):
-        """Vérifie si tous les disques sont sur la pile finale (pile 2) dans le même ordre que l'état initial."""
         final_pile = 2
-        # Toutes les piles sauf la finale doivent être vides
         for i in range(3):
             if i != final_pile and len(self.piles[i]) > 0:
                 return False
         
-        # La pile finale doit contenir tous les disques dans le même ordre que l'état initial
-        # Pour size=n, on a les disques [1, 2, ..., n-1] dans l'état initial
-        # L'état final devrait être [[], [], [1, 2, ..., n-1]] (même ordre)
         expected_order = list(range(1, self.size))
         return self.piles[final_pile] == expected_order
 
