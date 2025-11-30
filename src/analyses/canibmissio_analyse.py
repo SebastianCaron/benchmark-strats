@@ -24,23 +24,31 @@ def dfs_explored(*args, **kwargs):
     return Graph.DFS(*args, **kwargs)[1]
 
 def dijkstra_explored(*args, **kwargs):
-    # not done yet
-    return
+    return Graph.DIJKSTRA(*args, **kwargs)[1]
 
-def benchmark_hanoi(
-    sizes=[2,3,5,10],
-    repeats=50
-):
+def astar_explored(*args, **kwargs):
+    return Graph.ASTAR(*args, **kwargs)[1]
+
+def idastar_explored(*args, **kwargs):
+    return Graph.IDASTAR(*args, **kwargs)[1]
+
+def benchmark_canibmissio(
+    number_canib=[8,18,40,80],
+    number_missio=[10,20,40,80],
+    cap_boat = [2,4,6,8],
+    max_node = [20,40,80,160],
+    repeats=50,
     results = []
-
-    for size in sizes:
+):
+    for nb_can, nb_mis, cap_b, m_node in number_canib, number_missio, cap_boat, max_node:
         alg_results = {
             key : {"time": [], "memory": [], "explored": []} 
             for key in ["BFS", "DFS", "Dijkstra"]
         }
-
+        const = CONST(nb_mis, nb_can, cap_b, m_node)
         for _ in range(repeats):
-            h = State(size)
+
+            h = State(nb_mis, nb_can, Direction.OLD_TO_NEW, 0, 0, 0, const)
 
             t, m, e = measure(bfs_explored, h)
             alg_results["BFS"]["time"].append(t)
@@ -57,8 +65,6 @@ def benchmark_hanoi(
             alg_results["Dijkstra"]["memory"].append(m)
             alg_results["Dijkstra"]["explored"].append(e)
             
-            
-            # print((size))
-        results.append((size, alg_results))
+        results.append((nb_mis, alg_results))
 
     return results
