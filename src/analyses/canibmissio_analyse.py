@@ -17,54 +17,63 @@ def measure(func, *args, **kwargs):
 
     return elapsed, peak / 1024, explored
 
-def bfs_explored(*args, **kwargs):
-    return Graph.BFS(*args, **kwargs)[1]
+def bfs_explored(graph, cm, *args, **kwargs):
+    return graph.BFS(cm, *args, **kwargs)[1]
 
-def dfs_explored(*args, **kwargs):
-    return Graph.DFS(*args, **kwargs)[1]
+def dfs_explored(graph, cm, *args, **kwargs):
+    return graph.DFS(cm, *args, **kwargs)[1]
 
-def dijkstra_explored(*args, **kwargs):
-    return Graph.DIJKSTRA(*args, **kwargs)[1]
+def dijkstra_explored(graph, cm, *args, **kwargs):
+    return graph.DIJKSTRA(cm, *args, **kwargs)[1]
 
-def astar_explored(*args, **kwargs):
-    return Graph.ASTAR(*args, **kwargs)[1]
+def astar_explored(graph, cm, *args, **kwargs):
+    return graph.ASTAR(cm, *args, **kwargs)[1]
 
-def idastar_explored(*args, **kwargs):
-    return Graph.IDASTAR(*args, **kwargs)[1]
+def idastar_explored(graph, cm, *args, **kwargs):
+    return graph.IDASTAR(cm, *args, **kwargs)[1]
 
 def benchmark_canibmissio(
-    number_canib=[8,18,40,80],
-    number_missio=[10,20,40,80],
-    cap_boat = [2,4,6,8],
+    number_missio_canib=[10,20,40,80],
     max_node = [20,40,80,160],
     repeats=50,
     results = []
 ):
-    for nb_can, nb_mis, cap_b, m_node in number_canib, number_missio, cap_boat, max_node:
+    for nb_can_mis, m_node in zip(number_missio_canib, max_node):
         alg_results = {
             key : {"time": [], "memory": [], "explored": []} 
-            for key in ["BFS", "DFS", "Dijkstra"]
+            for key in ["BFS", "DFS", "Dijkstra", "A*", "IDA*"]
         }
-        const = CONST(nb_mis, nb_can, cap_b, m_node)
+        const = CONST(nb_can_mis, nb_can_mis, 2, m_node)
         for _ in range(repeats):
+            graph = Graph()
+            cm = State(nb_can_mis, nb_can_mis, Direction.OLD_TO_NEW, 0, 0, 0, const)
 
-            h = State(nb_mis, nb_can, Direction.OLD_TO_NEW, 0, 0, 0, const)
-
-            t, m, e = measure(bfs_explored, h)
+            t, m, e = measure(bfs_explored, graph, cm)
             alg_results["BFS"]["time"].append(t)
             alg_results["BFS"]["memory"].append(m)
             alg_results["BFS"]["explored"].append(e)
             
-            t, m, e = measure(dfs_explored, h)
+            t, m, e = measure(dfs_explored, graph, cm)
             alg_results["DFS"]["time"].append(t)
             alg_results["DFS"]["memory"].append(m)
             alg_results["DFS"]["explored"].append(e)
             
-            t, m, e = measure(dijkstra_explored, h)
+            t, m, e = measure(dijkstra_explored, graph, cm)
             alg_results["Dijkstra"]["time"].append(t)
             alg_results["Dijkstra"]["memory"].append(m)
             alg_results["Dijkstra"]["explored"].append(e)
+
+             
+            t, m, e = measure(astar_explored, graph, cm)
+            alg_results["A*"]["time"].append(t)
+            alg_results["A*"]["memory"].append(m)
+            alg_results["A*"]["explored"].append(e)
+
+            t, m, e = measure(idastar_explored, graph, cm)
+            alg_results["IDA*"]["time"].append(t)
+            alg_results["IDA*"]["memory"].append(m)
+            alg_results["IDA*"]["explored"].append(e)
             
-        results.append((nb_mis, alg_results))
+        results.append((nb_can_mis, alg_results))
 
     return results

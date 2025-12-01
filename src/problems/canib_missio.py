@@ -12,12 +12,10 @@ class Direction:
 
 
 class CONST:
-	def __init__(self, MAX_M, MAX_C, CAP_BOAT, MAX_TIME_S, MAX_NODES):
+	def __init__(self, MAX_M, MAX_C, CAP_BOAT, MAX_NODES):
 		self.MAX_M = MAX_M
 		self.MAX_C = MAX_C
 		self.CAP_BOAT = CAP_BOAT
-
-		self.MAX_TIME = MAX_TIME_S
 		self.MAX_NODES = MAX_NODES
 
 # TERMINAL_STATE = State(-1, -1, Direction.NEW_TO_OLD, -1, -1, 0)
@@ -29,7 +27,7 @@ class CONST:
 
 class State(object):
 
-	def __init__(self, missionaries, cannibals, dir, missionariesPassed, cannibalsPassed, level, CONSTS):
+	def __init__(self, missionaries, cannibals, dir, missionariesPassed, cannibalsPassed, level, CONSTS, moves = None):
 		self.missionaries = missionaries
 		self.cannibals = cannibals
 		self.dir = dir
@@ -51,15 +49,18 @@ class State(object):
 			MAX_C = CONSTS.MAX_C
 			CAP_BOAT = CONSTS.CAP_BOAT
 
-		self.moves = self.genPossibleMoves()
+		if moves is None:
+			self.moves = self.genPossibleMoves()
+		else:
+			self.moves = moves
 
 	def key(self):
-		return (self.m, self.c, self.dir)
+		return (self.missionaries, self.cannibals, self.dir)
 		
 	def genPossibleMoves(self):
 		moves = []
-		for m in range(self.CONSTANTS.CAP_BOAT + 1):
-			for c in range(self.CONSTANTS.CAP_BOAT + 1):
+		for m in range(CAP_BOAT + 1):
+			for c in range(CAP_BOAT + 1):
 				if 0 < m < c:
 					continue
 				if 1 <= m + c <= CAP_BOAT:
@@ -119,9 +120,10 @@ class State(object):
 
 	def __ne__(self, other):
 		return not (self == other)
+	def __lt__(self, other):
+		return (self.missionaries, self.cannibals, self.dir) < (other.missionaries, other.cannibals, other.dir)
 
-
-TERMINAL_STATE = State(-1, -1, Direction.NEW_TO_OLD, -1, -1, 0, CNST,None)
+TERMINAL_STATE = State(-1, -1, Direction.NEW_TO_OLD, -1, -1, 0, CNST)
 # INITIAL_STATE = State(MAX_M, MAX_C, Direction.OLD_TO_NEW, 0, 0, 0, CNST)
 
 
@@ -142,13 +144,13 @@ class Graph:
 		self.expandedASTAR = 0
 		self.expandedIDASTAR = 0
 
-	def BFS(self, s):
+	def BFS(self, cm):
 		self.expandedBFS = 0
-		self.bfs_parent[s] = None
-		visited = {(s.missionaries, s.cannibals, s.dir): True}
-		s.level = 0
+		self.bfs_parent[cm] = None
+		visited = {(cm.missionaries, cm.cannibals, cm.dir): True}
+		cm.level = 0
 
-		queue = [s]
+		queue = [cm]
 		while queue:
 			self.expandedBFS += 1
 
@@ -174,12 +176,12 @@ class Graph:
 
 		return False, self.expandedBFS
 
-	def DFS(self, s):
+	def DFS(self, cm):
 		self.expandedDFS = 0
-		self.dfs_parent[s] = None
-		visited = {(s.missionaries, s.cannibals, s.dir): True}
+		self.dfs_parent[cm] = None
+		visited = {(cm.missionaries, cm.cannibals, cm.dir): True}
 
-		stack = [s]
+		stack = [cm]
 		while stack:
 			u = stack.pop()
 			self.expandedDFS += 1
@@ -202,10 +204,10 @@ class Graph:
 					stack.append(v)
 		return False, self.expandedDFS
 	
-	def DIJKSTRA(self, s):
-		self.dij_parent = {s: None}
-		dist = {s.key(): 0}
-		pq = [(0, s)]
+	def DIJKSTRA(self, cm):
+		self.dij_parent = {cm: None}
+		dist = {cm.key(): 0}
+		pq = [(0, cm)]
 
 		while pq:
 			cost_u, u = heapq.heappop(pq)
@@ -219,22 +221,22 @@ class Graph:
 
 				if k not in dist or new_cost < dist[k]:
 					dist[k] = new_cost
-					self.parent[v] = u
+					self.dij_parent[v] = u
 					heapq.heappush(pq, (new_cost, v))
 
 		return False, self.expandedDIJ
 
-	def heuristic(self, s):
-		remaining = s.m + s.c
-		cap = s.CONSTANTS.CAP_BOAT
+	def heuristic(self, cm):
+		remaining = cm.missionaries + cm.cannibals
+		cap = cm.CONSTANTS.CAP_BOAT
 		return (remaining + cap - 1) // cap
 
-	def ASTAR(self, s):
-		self.astar_parent = {s: None}
+	def ASTAR(self, cm):
+		self.astar_parent = {cm: None}
 		self.expandedASTAR = 0
-		g = {s.key(): 0}
+		g = {cm.key(): 0}
 
-		pq = [(self.heuristic(s), s)]
+		pq = [(self.heuristic(cm), cm)]
 
 		while pq:
 			f_u, u = heapq.heappop(pq)
