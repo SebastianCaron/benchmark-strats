@@ -1,10 +1,7 @@
 from collections import defaultdict
 import heapq
+import itertools
 
-MAX_M = 30
-MAX_C = 30
-CAP_BOAT = 20
-CNST = None
 
 class Direction:
 	OLD_TO_NEW = 1
@@ -35,19 +32,10 @@ class State(object):
 		self.level = level
 		self.missionariesPassed = missionariesPassed
 		self.cannibalsPassed = cannibalsPassed
-		self.CONSTANTS = CONSTS
-
-		global MAX_M
-		global MAX_C
-		global CAP_BOAT
-		global CNST
-
-		if not CONSTS is None:
-			CNST = CONSTS
-
-			MAX_M = CONSTS.MAX_M
-			MAX_C = CONSTS.MAX_C
-			CAP_BOAT = CONSTS.CAP_BOAT
+		if CONSTS is None:
+			self.CONSTANTS = CONST(missionaries, cannibals, 2, 100)
+		else:
+			self.CONSTANTS = CONSTS
 
 		if moves is None:
 			self.moves = self.genPossibleMoves()
@@ -59,11 +47,11 @@ class State(object):
 		
 	def genPossibleMoves(self):
 		moves = []
-		for m in range(CAP_BOAT + 1):
-			for c in range(CAP_BOAT + 1):
+		for m in range(self.CONSTANTS.CAP_BOAT + 1):
+			for c in range(self.CONSTANTS.CAP_BOAT + 1):
 				if 0 < m < c:
 					continue
-				if 1 <= m + c <= CAP_BOAT:
+				if 1 <= m + c <= self.CONSTANTS.CAP_BOAT:
 					moves.append((m, c))
 		return moves
 
@@ -84,16 +72,64 @@ class State(object):
 		return listChild
 
 	def addValidSuccessors(self, listChild, m, c, sgn, direction):
-		newState = State(self.missionaries + sgn * m, self.cannibals + sgn * c, self.dir + sgn * 1,
-							self.missionariesPassed - sgn * m, self.cannibalsPassed - sgn * c, self.level + 1,
-							self.CONSTANTS,self.moves)
+		# changer correctement le sens du bateau
+		new_dir = Direction.NEW_TO_OLD if self.dir == Direction.OLD_TO_NEW else Direction.OLD_TO_NEW
+		
+		newState = State(
+			self.missionaries + sgn * m,
+			self.cannibals + sgn * c,
+			new_dir,
+			self.missionariesPassed - sgn * m,
+			self.cannibalsPassed - sgn * c,
+			self.level + 1,
+			self.CONSTANTS
+		)
+		
 		if newState.isValid():
-			newState.action = " take %d missionaries and %d cannibals %s." % (m, c, direction)
+			newState.action = f" take {m} missionaries and {c} cannibals {direction}."
 			listChild.append(newState)
+
+	def ida_successors(self):
+		children = []
+		if self.isGoalState() or not self.isValid():
+			return children
+
+		for m, c in self.moves:
+			if self.dir == Direction.OLD_TO_NEW:
+				new_m = self.missionaries - m
+				new_c = self.cannibals - c
+				new_m_passed = self.missionariesPassed + m
+				new_c_passed = self.cannibalsPassed + c
+				direction = "from the original shore to the new shore"
+			else:
+				new_m = self.missionaries + m
+				new_c = self.cannibals + c
+				new_m_passed = self.missionariesPassed - m
+				new_c_passed = self.cannibalsPassed - c
+				direction = "back from the new shore to the original shore"
+
+			new_dir = Direction.NEW_TO_OLD if self.dir == Direction.OLD_TO_NEW else Direction.OLD_TO_NEW
+			new_node = State(
+				new_m,
+				new_c,
+				new_dir,
+				new_m_passed,
+				new_c_passed,
+				self.level + 1,
+				self.CONSTANTS,
+				None
+			)
+
+			if new_node.isValid():
+				new_node.action = f" take {m} missionaries and {c} cannibals {direction}."
+				children.append(new_node)
+
+		return children
+
 
 	def isValid(self):
 		# obvious
-		if self.missionaries < 0 or self.cannibals < 0 or self.missionaries > MAX_M or self.cannibals > MAX_C or (
+		if self.missionaries < 0 or self.cannibals < 0 or self.missionaries > self.CONSTANTS.MAX_M or self.cannibals > self.CONSTANTS.MAX_C or (
 				self.dir != 0 and self.dir != 1):
 			return False
 
@@ -123,7 +159,7 @@ class State(object):
 	def __lt__(self, other):
 		return (self.missionaries, self.cannibals, self.dir) < (other.missionaries, other.cannibals, other.dir)
 
-TERMINAL_STATE = State(-1, -1, Direction.NEW_TO_OLD, -1, -1, 0, CNST)
+TERMINAL_STATE = State(-1, -1, Direction.NEW_TO_OLD, -1, -1, 0, None)
 # INITIAL_STATE = State(MAX_M, MAX_C, Direction.OLD_TO_NEW, 0, 0, 0, CNST)
 
 
@@ -235,11 +271,18 @@ class Graph:
 		self.astar_parent = {cm: None}
 		self.expandedASTAR = 0
 		g = {cm.key(): 0}
+		visited = set() 
 
-		pq = [(self.heuristic(cm), cm)]
+		counter = itertools.count()
+		pq = [(self.heuristic(cm), next(counter), cm)]
 
 		while pq:
-			f_u, u = heapq.heappop(pq)
+			f_u, _, u = heapq.heappop(pq)
+
+			if u.key() in visited:
+				continue
+			visited.add(u.key())
+
 			self.expandedASTAR += 1
 
 			if u.isGoalState():
@@ -253,44 +296,63 @@ class Graph:
 					g[k] = tentative_g
 					f_v = tentative_g + self.heuristic(v)
 					self.astar_parent[v] = u
-					heapq.heappush(pq, (f_v, v))
+					heapq.heappush(pq, (f_v, next(counter), v))
 
 		return False, self.expandedASTAR
 
 
-	def IDASTAR(self, start):
 
-		self.idastar_parent = {start: None}
+	def IDASTAR(self, start):
+		self.idastar_parent = {start: None}  # on peut garder pour reconstruction si voulu
 		self.expandedIDASTAR = 0
-		limit = self.heuristic(start)
+
+		def heuristic(n):
+			remaining = n.missionaries + n.cannibals
+			cap = n.CONSTANTS.CAP_BOAT
+			return (remaining + cap - 1) // cap
+
+		limit = heuristic(start)
+
+		path = [start]            # chemin courant (détection de cycles locale)
+		path_keys = {start.key()} # ensemble pour test O(1) d'appartenance au chemin
 
 		def dfs_limited(node, g, limit):
 			self.expandedIDASTAR += 1
 
-			f = g + self.heuristic(node)
+			f = g + heuristic(node)
 			if f > limit:
-				return f 
+				return f
 
 			if node.isGoalState():
-				return True 
+				return True
 
 			min_overlimit = float("inf")
 
-			for succ in node.successors():
-				if succ not in self.idastar_parent:
+			for succ in node.ida_successors():
+				# cycle detection : n'autorise pas revisiter un état déjà sur le chemin courant
+				if succ.key() in path_keys:
+					continue
+
+				path.append(succ)
+				path_keys.add(succ.key())
+
+				result = dfs_limited(succ, g + 1, limit)
+
+				path.pop()
+				path_keys.remove(succ.key())
+
+				if result is True:
+					# optionnel : remplir idastar_parent pour reconstruction si nécessaire
 					self.idastar_parent[succ] = node
-					result = dfs_limited(succ, g + 1, limit)
+					return True
 
-					if result is True:
-						return True
-
-					if isinstance(result, (int, float)) and result < min_overlimit:
-						min_overlimit = result
-
-					del self.idastar_parent[succ]
+				# result is a cutoff value (number) -> track min overlimit
+				if isinstance(result, (int, float)) and result < min_overlimit:
+					min_overlimit = result
 
 			return min_overlimit
 
+		# boucle principale d'IDA*
 		while True:
 			result = dfs_limited(start, 0, limit)
 
@@ -300,5 +362,5 @@ class Graph:
 			if result == float("inf"):
 				return False, self.expandedIDASTAR
 
+			# prochaine limite : la plus petite valeur retournée > limit
 			limit = result
-

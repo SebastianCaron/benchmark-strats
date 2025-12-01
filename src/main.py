@@ -34,17 +34,20 @@ for metric in metrics:
     plot_metric_hanoi(results, algos, metric, f'./figures/{metric}_hanoi.png')
 
 results = benchmark_canibmissio(
-    number_missio_canib=[3, 5, 10, 20, 40, 80, 100],
+    number_missio_canib=[3, 4, 5, 7, 10, 15, 20],
     repeats=20
 )
 
 export_to_csv_canibmissio(results)
 metrics = ["time", "memory", "explored"]
-algos = ['BFS', 'DFS', 'Dijkstra', 'A*', 'IDA*', 'IDA* (bad h())']
+algos = ['BFS', 'DFS', 'Dijkstra', 'A*', 'IDA*']
+algos_without_ida = ['BFS', 'DFS', 'Dijkstra', 'A*']
 # algos = ['BFS', 'DFS', 'Dijkstra', 'A*', 'IDA*']
 # algos = ['BFS', 'DFS', 'Dijkstra', 'A*']
 for metric in metrics:
     plot_metric_canibmissio(results, algos, metric, f'./figures/{metric}_canibmissio.png')
+    plot_metric_canibmissio(results, algos_without_ida, metric, f'./figures/{metric}_canibmissio_no_ida.png')
+
 
 
 # results = benchmark_grid(

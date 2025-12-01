@@ -34,7 +34,7 @@ def idastar_explored(graph, cm, *args, **kwargs):
 
 def benchmark_canibmissio(
     number_missio_canib=[10,20,40,80],
-    max_node = [20,40,80,160],
+    max_node = [20,40,80,160, 320, 640, 1280],
     repeats=50,
     results = []
 ):
@@ -45,30 +45,33 @@ def benchmark_canibmissio(
         }
         const = CONST(nb_can_mis, nb_can_mis, 2, m_node)
         for _ in range(repeats):
-            graph = Graph()
             cm = State(nb_can_mis, nb_can_mis, Direction.OLD_TO_NEW, 0, 0, 0, const)
 
+            graph = Graph()
             t, m, e = measure(bfs_explored, graph, cm)
             alg_results["BFS"]["time"].append(t)
             alg_results["BFS"]["memory"].append(m)
             alg_results["BFS"]["explored"].append(e)
             
+            graph = Graph()
             t, m, e = measure(dfs_explored, graph, cm)
             alg_results["DFS"]["time"].append(t)
             alg_results["DFS"]["memory"].append(m)
             alg_results["DFS"]["explored"].append(e)
             
+            graph = Graph()
             t, m, e = measure(dijkstra_explored, graph, cm)
             alg_results["Dijkstra"]["time"].append(t)
             alg_results["Dijkstra"]["memory"].append(m)
             alg_results["Dijkstra"]["explored"].append(e)
 
-             
+            graph = Graph()
             t, m, e = measure(astar_explored, graph, cm)
             alg_results["A*"]["time"].append(t)
             alg_results["A*"]["memory"].append(m)
             alg_results["A*"]["explored"].append(e)
 
+            graph = Graph()
             t, m, e = measure(idastar_explored, graph, cm)
             alg_results["IDA*"]["time"].append(t)
             alg_results["IDA*"]["memory"].append(m)
