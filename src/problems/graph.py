@@ -64,14 +64,14 @@ def bfs(graph: Graph):
         explored += 1
 
         if node == goal:
-            return True, explored
+            return True, len(visited)
 
         for neighbor in graph.successeurs(node):
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append(neighbor)
 
-    return False, explored
+    return False, len(visited)
 
 
 
@@ -88,14 +88,14 @@ def dfs(graph: Graph):
         explored += 1
 
         if node == goal:
-            return True, explored
+            return True, len(visited)
 
         for neighbor in graph.successeurs(node):
             if neighbor not in visited:
                 visited.add(neighbor)
                 stack.append(neighbor)
 
-    return False, explored
+    return False, len(visited)
 
 
 

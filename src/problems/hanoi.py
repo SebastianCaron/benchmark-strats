@@ -113,14 +113,14 @@ def bfs_hanoi(hanoi : Hanoi):
         explored += 1
 
         if node.is_final():
-            return True, explored
+            return True, len(visited)
 
         for neighbor in node.successors().values():
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append(neighbor)
 
-    return False, explored
+    return False, len(visited)
 
 def dfs_hanoi(hanoi: Hanoi):
     start = hanoi
@@ -133,14 +133,14 @@ def dfs_hanoi(hanoi: Hanoi):
         explored += 1
 
         if node.is_final():
-            return True, explored
+            return True, len(visited)
 
         for neighbor in node.successors().values():
             if neighbor not in visited:
                 visited.add(neighbor)
                 stack.append(neighbor)
 
-    return False, explored
+    return False, len(visited)
 
 def dijkstra_hanoi(start : Hanoi):
     dist = defaultdict(lambda : float('inf'))
@@ -179,7 +179,7 @@ def astar_hanoi(hanoi: Hanoi):
     dist[start] = 0
     visited = set()
 
-    explored = 0
+    explored = 1
 
     while pq:
         f_score, g_score, node = heapq.heappop(pq)
@@ -188,7 +188,6 @@ def astar_hanoi(hanoi: Hanoi):
             continue
             
         visited.add(node)
-        explored += 1
 
         if node.is_final():
             return True, g_score, explored
@@ -196,7 +195,7 @@ def astar_hanoi(hanoi: Hanoi):
         for neighbor in node.successors().values():
             if neighbor in visited:
                 continue
-                
+            explored += 1
             new_cost = g_score + 1
 
             if new_cost < dist[neighbor]:

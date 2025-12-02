@@ -105,14 +105,14 @@ def bfs_grid(grid: Grid):
         explored += 1
 
         if node == goal:
-            return True, explored
+            return True, len(visited)
 
         for neighbor in grid.successeurs(node):
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append(neighbor)
 
-    return False, explored
+    return False, len(visited)
 
 
 
@@ -129,14 +129,14 @@ def dfs_grid(grid: Grid):
         explored += 1
 
         if node == goal:
-            return True, explored
+            return True, len(visited)
 
         for neighbor in grid.successeurs(node):
             if neighbor not in visited:
                 visited.add(neighbor)
                 stack.append(neighbor)
 
-    return False, explored
+    return False, len(visited)
 
 def dijkstra_grid(grid: Grid):
     start = grid.initial()
@@ -180,7 +180,7 @@ def astar(grid: Grid):
     dist[start] = 0
     visited = set()
 
-    explored = 0
+    explored = 1
 
     while pq:
         f_score, g_score, pos = heapq.heappop(pq)
@@ -189,7 +189,6 @@ def astar(grid: Grid):
             continue
             
         visited.add(pos)
-        explored += 1
 
         if pos == goal:
             return True, g_score, explored
@@ -197,7 +196,7 @@ def astar(grid: Grid):
         for voisin in grid.successeurs(pos):
             if voisin in visited:
                 continue
-                
+            explored += 1
             new_cost = g_score + 1
 
             if new_cost < dist[voisin]:
