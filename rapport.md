@@ -357,7 +357,7 @@ Dans cette implémentation, une fonction permet de savoir en avance si le chemin
 **Configuration des tests :**
 
 - **Taille du problème :** Instances classiques (3 missionnaires / 3 cannibales) et variantes (4,5,7,10,15,20).
-- **Algorithmes testés :** BFS, DFS, Dijkstra, A*, IDA*.
+- **Algorithmes testés :** BFS, DFS, Dijkstra, A\*, IDA\*.
 
 ### 3.4.1 Visualisation des performances
 
@@ -394,7 +394,7 @@ Les algorithmes non informés se comportent très différemment de ce que l’on
 
 - **Exploration :** Le BFS explore uniformément tout l'espace d’états valides. Comme celui-ci est limité, le BFS trouve systématiquement la solution optimale, même performance que DFS.
 
-- **Performance :**: Similaire au DFS : Il prend juste un peu moins de mémoire que le DFS (**4.5MO** à peine) 
+- **Performance :**: Similaire au DFS : Il prend juste un peu moins de mémoire que le DFS (**4.5Mo** à peine) 
 
 #### **Dijkstra**
 
@@ -402,19 +402,19 @@ Les algorithmes non informés se comportent très différemment de ce que l’on
 
 - **Performance :** Performances similaires aux deux autres algorithmes non informés. Cependant, malgré le coût uniforme et donc une "surcharge" algorithmique avec la gestion de la queue, il s'agit de l'algorithme avec, pour les plus grandes tailles, le moins de mémoire utilisée (similaire à BFS). En effet, il ne ré-enfile pas les nœuds si un chemin moins coûteux existe déjà.
 
-### 3.4.3 Analyse des stratégies informées (A* et IDA*)
+### 3.4.3 Analyse des stratégies informées (A\* et IDA\*)
 
-Nous avons décidé d'utiliser une bonne heuristique ((remaining + cap - 1) // cap) donnant le nombre minimal de traversées nécessaires pour déplacer tout le monde, sans prendre en compte les contraintes. Même avec une heuristique plus informée, ça ne change pas les résultats.
+Nous avons décidé d'utiliser une bonne heuristique $ ((remaining + cap - 1) // cap) $ donnant le nombre minimal de traversées nécessaires pour déplacer tout le monde, sans prendre en compte les contraintes. Même avec une heuristique plus informée, ça ne change pas les résultats.
 
-#### A* (A-Star)
+#### A\* (A-Star)
 
 - **Efficacité de l'heuristique :** Ici, l'heuristique est inefficace. 
 
 - **Performance :** Pour l'exploration et le temps, A* est exactement au même niveau que bfs et dijkstra. Cependant, en raison de sa gestion de l'heuristique, il prend plus de mémoire que les algorithmes non informés (plus de **6.6Mo**)  
 
-#### IDA* (Iterative Deepening A*)
+#### IDA\* (Iterative Deepening A\*)
 
-- **Performance :** Médiocre en tout point. En effet, il explose partout, que ce soit en exploration, en mémoire ou en temps. La raison à cela : IDA* utilise une détection de cycle locale uniquement, et ne garde pas en mémoire les chemins vistés (l'objectif de l'algorithme étant de libérer de la mémoire,  ne gardant pas les chemins précédents, en faisant une recherche en profondeur itérative avec un seuil limit.). Il réexplore donc les mêmes états, ce qui explique cet écart si important : un peu moins de **992 noeuds** explorés, presque **40Mo** de mémoire, et **80Ms** de temps.
+- **Performance :** Médiocre en tout point. En effet, il explose partout, que ce soit en exploration, en mémoire ou en temps. La raison à cela : IDA\* utilise une détection de cycle locale uniquement, et ne garde pas en mémoire les chemins vistés (l'objectif de l'algorithme étant de libérer de la mémoire,  ne gardant pas les chemins précédents, en faisant une recherche en profondeur itérative avec un seuil limit.). Il réexplore donc les mêmes états, ce qui explique cet écart si important : un peu moins de **992 noeuds** explorés, presque **40Mo** de mémoire, et **80ms** de temps.
 
 - **Conclusion :** Les algorithmes de recherches informées sont beaucoup moins efficaces, en raison du graph de très petite taille, très cyclique, et très contraignant. 
 
@@ -425,43 +425,43 @@ Nous avons décidé d'utiliser une bonne heuristique ((remaining + cap - 1) // c
 | **3** | DFS | 0.78 | 3.00 | **12** |
 | | BFS | 1.02 | 2.74 | 15 |
 | | Dijkstra | 0.99 | 2.60 | 15 |
-| | A* | 0.99 | 3.12 | 15 |
-| | IDA* | **6.75** | **11.37** | **99** |
+| | A\* | 0.99 | 3.12 | 15 |
+| | IDA\* | **6.75** | **11.37** | **99** |
 | **4** | DFS | 0.91 | 2.92 | 11 |
 | | BFS | 0.99 | 2.36 | 11 |
 | | Dijkstra | 1.49 | 2.61 | 11 |
-| | A* | 0.91 | 3.13 | 11 |
-| | IDA* | **5.04** | **7.82** | **64** |
+| | A\* | 0.91 | 3.13 | 11 |
+| | IDA\* | **5.04** | **7.82** | **64** |
 | **5** | DFS | 1.03 | 2.99 | 13 |
 | | BFS | 1.02 | 2.49 | 13 |
 | | Dijkstra | 0.98 | 2.61 | 13 |
-| | A* | 1.06 | 3.45 | 13 |
-| | IDA* | **7.69** | **9.67** | **92** |
+| | A\* | 1.06 | 3.45 | 13 |
+| | IDA\* | **7.69** | **9.67** | **92** |
 | **7** | DFS | *1.45 | 2.99 | 17 |
 | | BFS | 1.33 | 2.41 | 17 |
 | | Dijkstra | 1.49 | 2.61 | 17 |
-| | A* | 1.34 | 3.45 | 17 |
-| | IDA* | **13.10** | **12.71** | **160** |
+| | A\* | 1.34 | 3.45 | 17 |
+| | IDA\* | **13.10** | **12.71** | **160** |
 | **10** | DFS | 1.65 | 3.40 | 23 |
 | | BFS | 1.64 | 3.01 | 23 |
 | | Dijkstra | 1.68 | 2.74 | 23 |
-| | A* | 1.60 | 5.01 | 23 |
-| | IDA* | **23.01** | **17.32** | **292** |
+| | A\* | 1.60 | 5.01 | 23 |
+| | IDA\* | **23.01** | **17.32** | **292** |
 | **15** | DFS | 2.43 | 3.52 | 33 |
 | | BFS | 2.53 | 2.93 | 33 |
 | | Dijkstra | 2.34 | 2.85 | 33 |
-| | A* | 2.37 | 5.12 | 33 |
-| | IDA* | **46.97** | **26.51** | **592** |
+| | A\* | 2.37 | 5.12 | 33 |
+| | IDA\* | **46.97** | **26.51** | **592** |
 | **20** | DFS | 2.90 | 5.00 | 43 |
 | | BFS | 2.98 | 4.45 | 43 |
 | | Dijkstra | 2.93 | 4.33 | 43 |
-| | A* | 3.044 | 6.66 | 43 |
-| | IDA* | **79.99** | **39.30** | **992** |
+| | A\* | 3.044 | 6.66 | 43 |
+| | IDA\* | **79.99** | **39.30** | **992** |
 
 
 ## **Conclusion**
 
-L’étude du problème des missionnaires et cannibales met en évidence un problème majeur : **IDA*** s’effondre, due à l’absence d'historique, entraîne des réexplorations répétées, rendant l’algorithme inefficace.
+L’étude du problème des missionnaires et cannibales met en évidence un problème majeur : **IDA\*** s’effondre, due à l’absence d'historique, entraîne des réexplorations répétées, rendant l’algorithme inefficace.
 
 En résumé, ce benchmark montre que les algorithmes non informés sont beaucoup plus performants que les algorithmes informés sur ce problème, qui sont pénalisés par les contraintes logiques et la présence de cycles.
 
