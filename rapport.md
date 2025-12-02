@@ -365,7 +365,7 @@ Nos implémentations ont rencontré deux types de barrières critiques :
     - C'est la limite principale pour **Dijkstra** et **A\*** sur les grandes grilles ($N=320$). Stocker des centaines de milliers de noeuds avec leurs métadonnées (coûts g/h, parents) sature rapidement la RAM (16 Go dans notre environnement de test).
 
 2.  **Explosion Temporelle (Timeout) :**
-    - C'est la limite rencontrée par **IDA\*** sur les Tours de Hanoï. L'absence de mémorisation des états visités (`visited set`), couplée à un graphe contenant de multiples chemins vers les mêmes états (cycles/transpositions), entraîne un nombre gigantesque de ré-explorations. Pour $N=5$, IDA\* a dépassé les 4 heures de calcul là où BFS mettait 4 secondes.
+    - C'est la limite rencontrée par **IDA\*** sur les Tours de Hanoï. L'absence de mémorisation des états visités (`visited set`), couplée à un graphe contenant de multiples chemins vers les mêmes états (cycles/transpositions), entraîne un nombre gigantesque de ré-explorations.
 
 # 5. Conclusion
 
