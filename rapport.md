@@ -21,8 +21,12 @@ Conformément aux directives suggérant des problèmes de type "plus court chemi
 - **Les Tours de Hanoï[^1] :**
     Résolution d'un problème combinatoire classique, permettant d'évaluer la capacité des algorithmes à gérer un espace d'états croissant exponentiellement avec le nombre de disques (similaire à la complexité du Taquin).
     - *Algorithmes testés :* DFS, BFS, Dijkstra, A\*, IDA\*.
+- **Le problème des missionnaires et des cannibales[^2] :**
+    Modélisation d’un problème classique de planification et de recherche d’état, évaluant la capacité d’un algorithme à éviter les configurations interdites tout en explorant un espace d’états fortement contraint.
+    - *Algorithmes testés :* DFS, BFS, Dijkstra, A\*, IDA\*.
 
 [^1]: Voir la définition et les règles du problème sur [Wikipedia - Tours de Hanoï](https://fr.wikipedia.org/wiki/Tours_de_Hano%C3%AF).
+[^2]: Voir la définition et les règles du problème sur [Wikipedia - Missionaries and cannibals problem](https://en.wikipedia.org/wiki/Missionaries_and_cannibals_problem).
 
 
 # 2. Méthodologie
@@ -32,9 +36,15 @@ Conformément aux directives suggérant des problèmes de type "plus court chemi
 Conformément aux modalités laissant le choix des technologies libre, nous avons développé nos solutions en utilisant l'environnement suivant :
 
 - **Langage :** Python 3.12.3.
+
 - **Système d'exploitation :** Ubuntu 24.04.3 LTS.
 - **Matériel de test :** Les benchmarks ont été exécutés sur un ordinateur portable ASUS Vivobook (M3500QC) équipé de :
     - **Processeur :** AMD Ryzen™ 5 5600H 
+    - **Mémoire (RAM) :** 16 Go.
+
+- **Système d'exploitation :** Windows 11 24H2.
+- **Matériel de test :** Les benchmarks ont été exécutés sur un ordinateur portable ASUS ROG Strix équipé de :
+    - **Processeur :** AMD Ryzen™ 9  7845HX 
     - **Mémoire (RAM) :** 16 Go.
 
 - **Code source :** [https://github.com/SebastianCaron/benchmark-strats](https://github.com/SebastianCaron/benchmark-strats)
@@ -337,6 +347,124 @@ L'analyse des Tours de Hanoï offre un contraste frappant avec la recherche sur 
 
 En somme, ce benchmark rappelle que le choix de l'algorithme dépend avant tout de la **topologie du problème** : ici, la force brute dirigée (DFS) l'emporte sur l'heuristique.
 
+
+## 3.4 Missionnaires et Cannibales
+
+Le problème des missionnaires et des cannibales consiste à transférer x missionnaires et x cannibales d’une rive à l’autre à l’aide d’un bateau de capacité limitée (ici à 2), tout en respectant une contrainte de sécurité : sur chaque rive, le nombre de cannibales ne doit jamais dépasser celui des missionnaires, et un missionnaire doit accompagner un cannibale sur le bâteau.
+L’espace d’états forme un petit graphe fortement contraint, sans croissance exponentielle, mais avec une structure riche : états dangereux, actions restreintes, transitions asymétriques et cycliques.
+Dans cette implémentation, une fonction permet de savoir en avance si le chemin est valide et de générer ainsi les successeurs possibles. Implémentaton : [Subangkar gitlab](https://gitlab.com/Subangkar-cse-buet/Missionaries-and-Cannibals-Problem-Python)
+
+**Configuration des tests :**
+
+- **Taille du problème :** Instances classiques (3 missionnaires / 3 cannibales) et variantes (4,5,7,10,15,20).
+- **Algorithmes testés :** BFS, DFS, Dijkstra, A*, IDA*.
+
+### 3.4.1 Visualisation des performances
+
+Les graphiques ci-dessous montrent l'évolution des métriques.
+
+*Note : IDA\* explosant sur ce problème, deux graphiques pour chaque représentations ont été générés : l'un avec, et l'autre sans IDA\**
+
+
+![Temps d'exécution Missionnaires/Cannibales](./figures/time_canibmissio.png){ width=80% }
+
+![Consommation mémoire Missionnaires/Cannibales](./figures/memory_canibmissio.png){ width=80% }
+
+![Noeuds explorés Missionnaires/Cannibales](./figures/explored_canibmissio.png){ width=80% }
+
+![Temps d'exécution Missionnaires/Cannibales (sans IDA\*)](./figures/time_canibmissio_no_ida.png){ width=80% }
+
+![Consommation mémoire Missionnaires/Cannibales (sans IDA\*)](./figures/memory_canibmissio_no_ida.png){ width=80% }
+
+![Noeuds explorés Missionnaires/Cannibales (sans IDA\*)](./figures/explored_canibmissio_no_ida.png){ width=80% }
+
+### 3.4.2 Analyse des stratégies non informées
+
+Les algorithmes non informés se comportent très différemment de ce que l’on observe sur les Tours de Hanoï : ici, le graphe étant de taille faible (notamment avec la définition en avance des successeus) mais très contraint, les stratégies non informées dominent.
+
+#### **DFS (Depth-First Search)**
+
+- **Comportement :** Le DFS a tendance à s'enfoncer rapidement dans des impasses. Sans mémoire des noeuds visités, il multiplierait les réexplorations. Comme il garde en mémoire les noeuds visités, et connait les successeurs possibls, il est performant. Point qui le démarque des autres : il explore moins de noeuds que tous les autres aglorithme pour une taille 3/3 (**12 noeuds** contre 15 pour tous les autres) et est nettement plus rapide.
+
+- **Performance :** Pour toutes les instances, il explore tous les chemins non interdits. Comme le graphe est de taille très faible, il est très performant, comparable aux autres algorithmes non informés. (**3ms** et **43 noeuds** explorés pour une taille de 20/20)
+
+- **Mémoire :** Très faible (pile uniquement), **5Mo** pour 20 missionnaires/cannibales.
+
+#### **BFS (Breadth-First Search)**
+
+- **Exploration :** Le BFS explore uniformément tout l'espace d’états valides. Comme celui-ci est limité, le BFS trouve systématiquement la solution optimale, même performance que DFS.
+
+- **Performance :**: Similaire au DFS : Il prend juste un peu moins de mémoire que le DFS (**4.5MO** à peine) 
+
+#### **Dijkstra**
+
+- **Surcharge inutile :** Le coût de chaque mouvement étant uniforme (+1), Dijkstra se comporte comme un BFS mais avec une surcharge algorithmique (gestion de la `priority_queue`).
+
+- **Performance :** Performances similaires aux deux autres algorithmes non informés. Cependant, malgré le coût uniforme et donc une "surcharge" algorithmique avec la gestion de la queue, il s'agit de l'algorithme avec, pour les plus grandes tailles, le moins de mémoire utilisée (similaire à BFS). En effet, il ne ré-enfile pas les nœuds si un chemin moins coûteux existe déjà.
+
+### 3.4.3 Analyse des stratégies informées (A* et IDA*)
+
+Nous avons décidé d'utiliser une bonne heuristique ((remaining + cap - 1) // cap) donnant le nombre minimal de traversées nécessaires pour déplacer tout le monde, sans prendre en compte les contraintes. Même avec une heuristique plus informée, ça ne change pas les résultats.
+
+#### A* (A-Star)
+
+- **Efficacité de l'heuristique :** Ici, l'heuristique est inefficace. 
+
+- **Performance :** Pour l'exploration et le temps, A* est exactement au même niveau que bfs et dijkstra. Cependant, en raison de sa gestion de l'heuristique, il prend plus de mémoire que les algorithmes non informés (plus de **6.6Mo**)  
+
+#### IDA* (Iterative Deepening A*)
+
+- **Performance :** Médiocre en tout point. En effet, il explose partout, que ce soit en exploration, en mémoire ou en temps. La raison à cela : IDA* utilise une détection de cycle locale uniquement, et ne garde pas en mémoire les chemins vistés (l'objectif de l'algorithme étant de libérer de la mémoire,  ne gardant pas les chemins précédents, en faisant une recherche en profondeur itérative avec un seuil limit.). Il réexplore donc les mêmes états, ce qui explique cet écart si important : un peu moins de **992 noeuds** explorés, presque **40Mo** de mémoire, et **80Ms** de temps.
+
+- **Conclusion :** Les algorithmes de recherches informées sont beaucoup moins efficaces, en raison du graph de très petite taille, très cyclique, et très contraignant. 
+
+## **3.4.4 Synthèse comparative (Missionnaires et Cannibales)**
+
+| Taille (N/N) | Algorithme | Temps Moyen (ms) | Mémoire Moyenne (Mo) | Noeuds Explorés |
+| :---: | :--- | :--- | :--- | :--- |
+| **3** | DFS | 0.78 | 3.00 | **12** |
+| | BFS | 1.02 | 2.74 | 15 |
+| | Dijkstra | 0.99 | 2.60 | 15 |
+| | A* | 0.99 | 3.12 | 15 |
+| | IDA* | **6.75** | **11.37** | **99** |
+| **4** | DFS | 0.91 | 2.92 | 11 |
+| | BFS | 0.99 | 2.36 | 11 |
+| | Dijkstra | 1.49 | 2.61 | 11 |
+| | A* | 0.91 | 3.13 | 11 |
+| | IDA* | **5.04** | **7.82** | **64** |
+| **5** | DFS | 1.03 | 2.99 | 13 |
+| | BFS | 1.02 | 2.49 | 13 |
+| | Dijkstra | 0.98 | 2.61 | 13 |
+| | A* | 1.06 | 3.45 | 13 |
+| | IDA* | **7.69** | **9.67** | **92** |
+| **7** | DFS | *1.45 | 2.99 | 17 |
+| | BFS | 1.33 | 2.41 | 17 |
+| | Dijkstra | 1.49 | 2.61 | 17 |
+| | A* | 1.34 | 3.45 | 17 |
+| | IDA* | **13.10** | **12.71** | **160** |
+| **10** | DFS | 1.65 | 3.40 | 23 |
+| | BFS | 1.64 | 3.01 | 23 |
+| | Dijkstra | 1.68 | 2.74 | 23 |
+| | A* | 1.60 | 5.01 | 23 |
+| | IDA* | **23.01** | **17.32** | **292** |
+| **15** | DFS | 2.43 | 3.52 | 33 |
+| | BFS | 2.53 | 2.93 | 33 |
+| | Dijkstra | 2.34 | 2.85 | 33 |
+| | A* | 2.37 | 5.12 | 33 |
+| | IDA* | **46.97** | **26.51** | **592** |
+| **20** | DFS | 2.90 | 5.00 | 43 |
+| | BFS | 2.98 | 4.45 | 43 |
+| | Dijkstra | 2.93 | 4.33 | 43 |
+| | A* | 3.044 | 6.66 | 43 |
+| | IDA* | **79.99** | **39.30** | **992** |
+
+
+## **Conclusion**
+
+L’étude du problème des missionnaires et cannibales met en évidence un problème majeur : **IDA*** s’effondre, due à l’absence d'historique, entraîne des réexplorations répétées, rendant l’algorithme inefficace.
+
+En résumé, ce benchmark montre que les algorithmes non informés sont beaucoup plus performants que les algorithmes informés sur ce problème, qui sont pénalisés par les contraintes logiques et la présence de cycles.
+
 # 4. Discussion et Limites
 
 Au terme de ces expérimentations, nous pouvons dégager des tendances claires sur l'adéquation entre le type de problème et l'algorithme de résolution.
@@ -348,6 +476,7 @@ L'analyse comparative met en évidence trois profils de performance distincts :
 - **L'efficacité des algorithmes non informés (BFS/DFS) :**
     - Sur des graphes à coût uniforme, **BFS** reste la référence pour garantir l'optimalité. Cependant, sa consommation mémoire (linéaire par rapport au facteur de branchement) devient critique sur les instances larges (ex: Grille 320x320).
     - **DFS** s'est révélé être le champion inattendu sur le problème des Tours de Hanoï. Grâce à une gestion mémoire minimale (pile) et un graphe d'états fini sans "pièges" infinis, il surclasse les méthodes plus complexes.
+    - En général, les **algorithmes non informés** sont une excellente solution pour les problèmes cycliques de petit graph (à condition d'avoir un historique)
 
 - **La lourdeur de Dijkstra sur les coûts uniformes :**
     - Bien que théoriquement parfait pour les graphes pondérés, **Dijkstra** est systématiquement sous-performant sur nos problèmes à coûts unitaires (poids = 1). La gestion de la file de priorité (`PriorityQueue`) engendre un surcoût temporel et une consommation mémoire excessive (jusqu'à 15 Go sur grille) sans apporter de gain topologique par rapport à un simple BFS.
@@ -374,5 +503,7 @@ Ce mini-projet de benchmarking nous a permis de confronter la théorie algorithm
 - Pour la **navigation spatiale** (Grilles), les approches itératives guidées par heuristique (**IDA\***) sont imbattables.
 
 - Pour les **problèmes combinatoires** complexes (Hanoï), la simplicité du **DFS** prévaut, tant que l'on ne dispose pas d'une heuristique très performante.
+
+- Pour les **problèmes cycliques et contraignants** avec un petit graph, les **algorithmes non informés** se distinguent. **IDA\***, quant à lui, est à proscrire.
 
 - Pour les graphes généraux non pondérés, **BFS** reste le compromis sécurité/efficacité standard.

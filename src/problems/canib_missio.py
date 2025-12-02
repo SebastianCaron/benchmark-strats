@@ -72,7 +72,6 @@ class State(object):
 		return listChild
 
 	def addValidSuccessors(self, listChild, m, c, sgn, direction):
-		# changer correctement le sens du bateau
 		new_dir = Direction.NEW_TO_OLD if self.dir == Direction.OLD_TO_NEW else Direction.OLD_TO_NEW
 		
 		newState = State(
@@ -159,7 +158,7 @@ class State(object):
 	def __lt__(self, other):
 		return (self.missionaries, self.cannibals, self.dir) < (other.missionaries, other.cannibals, other.dir)
 
-TERMINAL_STATE = State(-1, -1, Direction.NEW_TO_OLD, -1, -1, 0, None)
+#TERMINAL_STATE = State(-1, -1, Direction.NEW_TO_OLD, -1, -1, 0, None)
 # INITIAL_STATE = State(MAX_M, MAX_C, Direction.OLD_TO_NEW, 0, 0, 0, CNST)
 
 
@@ -182,7 +181,6 @@ class Graph:
 
 	def BFS(self, cm):
 		self.expandedBFS = 0
-		self.bfs_parent[cm] = None
 		visited = {(cm.missionaries, cm.cannibals, cm.dir): True}
 		cm.level = 0
 
@@ -194,7 +192,6 @@ class Graph:
 
 			if u.isGoalState():
 				queue.clear()
-				self.bfs_parent[TERMINAL_STATE] = u
 				return True, self.expandedBFS
 
 			# Stops searching after a certain node limit 
@@ -205,7 +202,6 @@ class Graph:
 
 			for v in reversed(u.successors()):
 				if (v.missionaries, v.cannibals, v.dir) not in visited.keys():
-					self.bfs_parent[v] = u
 					v.level = u.level + 1
 					queue.append(v)
 					visited[(v.missionaries, v.cannibals, v.dir)] = True
@@ -214,7 +210,6 @@ class Graph:
 
 	def DFS(self, cm):
 		self.expandedDFS = 0
-		self.dfs_parent[cm] = None
 		visited = {(cm.missionaries, cm.cannibals, cm.dir): True}
 
 		stack = [cm]
@@ -223,7 +218,6 @@ class Graph:
 			self.expandedDFS += 1
 
 			if u.isGoalState():
-				self.dfs_parent[TERMINAL_STATE] = u
 				stack.clear()
 				return True, self.expandedDFS
 
@@ -236,12 +230,10 @@ class Graph:
 			for v in u.successors():
 				if (v.missionaries, v.cannibals, v.dir) not in visited.keys():
 					visited[(v.missionaries, v.cannibals, v.dir)] = True
-					self.dfs_parent[v] = u
 					stack.append(v)
 		return False, self.expandedDFS
 	
 	def DIJKSTRA(self, cm):
-		self.dij_parent = {cm: None}
 		dist = {cm.key(): 0}
 		pq = [(0, cm)]
 
@@ -257,7 +249,6 @@ class Graph:
 
 				if k not in dist or new_cost < dist[k]:
 					dist[k] = new_cost
-					self.dij_parent[v] = u
 					heapq.heappush(pq, (new_cost, v))
 
 		return False, self.expandedDIJ
@@ -268,7 +259,6 @@ class Graph:
 		return (remaining + cap - 1) // cap
 
 	def ASTAR(self, cm):
-		self.astar_parent = {cm: None}
 		self.expandedASTAR = 0
 		g = {cm.key(): 0}
 		visited = set() 
@@ -295,7 +285,6 @@ class Graph:
 				if k not in g or tentative_g < g[k]:
 					g[k] = tentative_g
 					f_v = tentative_g + self.heuristic(v)
-					self.astar_parent[v] = u
 					heapq.heappush(pq, (f_v, next(counter), v))
 
 		return False, self.expandedASTAR
@@ -303,7 +292,6 @@ class Graph:
 
 
 	def IDASTAR(self, start):
-		self.idastar_parent = {start: None}  # on peut garder pour reconstruction si voulu
 		self.expandedIDASTAR = 0
 
 		def heuristic(n):
@@ -313,8 +301,8 @@ class Graph:
 
 		limit = heuristic(start)
 
-		path = [start]            # chemin courant (détection de cycles locale)
-		path_keys = {start.key()} # ensemble pour test O(1) d'appartenance au chemin
+		path = [start]
+		path_keys = {start.key()}
 
 		def dfs_limited(node, g, limit):
 			self.expandedIDASTAR += 1
@@ -329,7 +317,6 @@ class Graph:
 			min_overlimit = float("inf")
 
 			for succ in node.ida_successors():
-				# cycle detection : n'autorise pas revisiter un état déjà sur le chemin courant
 				if succ.key() in path_keys:
 					continue
 
@@ -342,17 +329,13 @@ class Graph:
 				path_keys.remove(succ.key())
 
 				if result is True:
-					# optionnel : remplir idastar_parent pour reconstruction si nécessaire
-					self.idastar_parent[succ] = node
 					return True
 
-				# result is a cutoff value (number) -> track min overlimit
 				if isinstance(result, (int, float)) and result < min_overlimit:
 					min_overlimit = result
 
 			return min_overlimit
 
-		# boucle principale d'IDA*
 		while True:
 			result = dfs_limited(start, 0, limit)
 
@@ -361,6 +344,4 @@ class Graph:
 
 			if result == float("inf"):
 				return False, self.expandedIDASTAR
-
-			# prochaine limite : la plus petite valeur retournée > limit
 			limit = result
